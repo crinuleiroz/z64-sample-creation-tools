@@ -442,8 +442,6 @@ class AudioProcessor:
     # Key-based Intrument tuning value, higher pitch is < 1 and lower pitch is > 1
     chan_tune = pow(2, (self.root_note - 60) / -12) * (self.sample_rate / 32000) # Math is hard sometimes...
     key_tune  = pow(2, (0 / 12)) * (self.sample_rate / 32000)
-    
-    print(chan_tune, key_tune)
 
     return chan_tune, key_tune
 
