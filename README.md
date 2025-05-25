@@ -5,9 +5,9 @@ Creates an APDCM file compatible with Zelda64 and a SEQ64 XML instrument bank us
 To use this script, follow the steps below:
 
 > 1. Place the following files/folders in the same directory:
->      - 💻 `z64audio.exe` — the executable used to convert the WAV file to an ADPCM file
->      - 📄 `WAV to ZSOUND.py` — the main script
->      - 📁 `utils/` — the folder containing utility scripts
+>      - `💻 z64audio.exe` — the executable used to convert the WAV file to an ADPCM file
+>      - `📄 WAV to ZSOUND.py` — the main script
+>      - `📁/utils` — the folder containing utility scripts
 > 2. Run `Install Requirements to VENV.bat` to install the requirements from `requirements.txt` into a virtual environment.
 > 3. Drag and drop any number of WAV files or folders onto `WAV to ZSOUND.py`
 
