@@ -185,7 +185,8 @@ class XMLBank:
             "field": [
               {"name": "Release Rate", "datatype": "uint8", "ispointer": "0", "isarray": "0", "meaning": "None", "value": "245"},
               {"name": "Pan", "datatype": "uint8", "ispointer": "0", "isarray": "0", "meaning": "None", "value": "64"},
-              {"name": "Relocated (Bool)", "datatype": "uint16", "ispointer": "0", "isarray": "0", "meaning": "None", "value": "0"},
+              {"name": "Relocated (Bool)", "datatype": "uint8", "ispointer": "0", "isarray": "0", "meaning": "None", "value": "0"},
+              {"name": "Padding Byte", "datatype": "uint8", "ispointer": "0", "isarray": "0", "meaning": "None", "value": "0"},
               {"name": "Drum Sound", "datatype": "ABSound", "ispointer": "0", "isarray": "0", "meaning": "Drum Sound",
                 "struct": { "name": "ABSound",
                   "field": [
