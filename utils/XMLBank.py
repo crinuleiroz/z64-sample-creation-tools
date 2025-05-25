@@ -281,7 +281,7 @@ class XMLBank:
             "field": [
               {"name": "Loop Start", "datatype": "uint32", "ispointer": "0", "isarray": "0", "meaning": "Loop Start", "value": f"{sample.loop_start}"},
               {"name": "Loop End (Sample Length if Count = 0)", "datatype": "uint32", "ispointer": "0", "isarray": "0", "meaning": "Loop End", "value": f"{sample.loop_end if sample.loop_start != 0 else sample.num_samples}"},
-              {"name": "Loop Count", "datatype": "uint32", "ispointer": "0", "isarray": "0", "meaning": "Loop Count", "defaultval": "-1", "value": f"{-1 if sample.loop_start != 0 else 0}"},
+              {"name": "Loop Count", "datatype": "int32", "ispointer": "0", "isarray": "0", "meaning": "Loop Count", "defaultval": "-1", "value": f"{-1 if sample.loop_start != 0 else 0}"},
               {"name": "Number of Samples", "datatype": "uint32", "ispointer": "0", "isarray": "0", "meaning": "None", "value": f"{sample.num_samples if sample.loop_start != 0 else 0}"},
               {"name": "Loopbook", "datatype": "ALADPCMTail", "ispointer": "0", "isarray": "1", "arraylenvar": "HAS_TAIL", "meaning": "Tail Data (if Loop Start != 0)", "element": loopbook_field}
             ]
