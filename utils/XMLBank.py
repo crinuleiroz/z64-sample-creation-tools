@@ -137,7 +137,7 @@ class XMLBank:
             {"name": "Relocated (Bool)", "datatype": "uint8", "ispointer": "0", "isarray": "0", "meaning": "None", "value": "0"},
             {"name": "Key Region Low (Max Range)", "datatype": "uint8", "ispointer": "0", "isarray": "0", "meaning": "None", "value": f"{key_region_low}"},
             {"name": "Key Region High (Min Range)", "datatype": "uint8", "ispointer": "0", "isarray": "0", "meaning": "None", "value": f"{key_region_high}"},
-            {"name": "Release Rate", "datatype": "uint8", "ispointer": "0", "isarray": "0", "meaning": "None", "value": "245"},
+            {"name": "Decay Index", "datatype": "uint8", "ispointer": "0", "isarray": "0", "meaning": "None", "value": "245"},
             {"name": "Envelope Pointer","datatype": "uint32","ispointer": "1","ptrto": "ABEnvelope","isarray": "0","meaning": "Ptr Envelope","value": f"{self.envelope_address}","index": "0"},
             {"name": "Sample Pointer Array", "datatype": "ABSound", "ispointer": "0", "isarray": "1", "arraylenfixed": "3", "meaning": "List of 3 Sounds for Splits",
               "element": [
@@ -183,7 +183,7 @@ class XMLBank:
         { "address": f"{self.drum_address + (index * 0x10)}", "name": f"{sample.name} [{index}]",
           "struct": { "name": "ABDrum",
             "field": [
-              {"name": "Release Rate", "datatype": "uint8", "ispointer": "0", "isarray": "0", "meaning": "None", "value": "245"},
+              {"name": "Decay Index", "datatype": "uint8", "ispointer": "0", "isarray": "0", "meaning": "None", "value": "245"},
               {"name": "Pan", "datatype": "uint8", "ispointer": "0", "isarray": "0", "meaning": "None", "value": "64"},
               {"name": "Relocated (Bool)", "datatype": "uint8", "ispointer": "0", "isarray": "0", "meaning": "None", "value": "0"},
               {"name": "Padding Byte", "datatype": "uint8", "ispointer": "0", "isarray": "0", "meaning": "None", "value": "0"},
