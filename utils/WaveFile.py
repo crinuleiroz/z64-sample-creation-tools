@@ -1,4 +1,6 @@
-# Utility script for WAV to ZSOUND.py
+'''
+Utility for parsing binary WAV file data.
+'''
 import ctypes
 import struct
 
@@ -86,15 +88,46 @@ class FmtChunk(ctypes.Structure):
     self.extra_params    = extra_params
 
 class WaveFile:
-  """
+  '''
   Parses and stores information about a given WAV file.
-  """
+  '''
   def __init__(self, filename):
-    self.filename   = filename
-    self.file       = None
-    self.fmt_chunk  = None
-    self.smpl_chunk = None
-    self.chunk_size = 0
+    self.filename    = filename
+    self.wav_data    = None
+    self.file        = None
+
+    # 'fmt ' chunk
+    self.fmt_chunk      = None
+    self.fmt_chunk_addr = -1
+    self.fmt_chunk_size = 0
+
+    # 'data' chunk
+    self.data_chunk      = None
+    self.data_chunk_adrr = -1
+    self.data_chunk_size = 0
+
+    # 'smpl' chunk
+    self.smpl_chunk      = None
+    self.smpl_chunk_addr = -1
+    self.smpl_chunk_size = 0
+
+  def _scan_for_chunk(self, chunk_id: bytes) -> tuple[int, int]:
+    self.file.seek(12)
+
+    while True:
+      header = self.file.read(8)
+      if len(header) < 8:
+        return -1, 0
+
+      curr_id, size = struct.unpack('<4sI', header)
+      curr_offset = self.file.tell() - 8
+
+      if curr_id == chunk_id:
+        return curr_offset, size
+
+      self.file.seek(size, 1)
+      if size % 2 == 1:
+        self.file.seek(1, 1)
 
   def open(self):
     self.file = open(self.filename, 'r+b')
@@ -117,26 +150,17 @@ class WaveFile:
     self.chunk_size = chunk_size
 
   def find_fmt_chunk(self):
-    self.file.seek(12)
+    self.fmt_chunk_addr, self.fmt_chunk_size = self._scan_for_chunk(b'fmt ')
+    if self.fmt_chunk_addr == -1:
+      raise ValueError('No fmt chunk in RIFF!')
 
-    while True:
-      chunk_header = self.file.read(8)
-      if len(chunk_header) < 8:
-        break
+    self.fmt_chunk = FmtChunk()
+    self.fmt_chunk.chunk_id = b'fmt '
+    self.parse_fmt()
 
-      chunk_id, chunk_size = struct.unpack('<4s1I', chunk_header)
-
-      if chunk_id == b'fmt ':
-        self.fmt_chunk = FmtChunk()
-        self.fmt_chunk.chunk_id = chunk_id
-        self.fmt_chunk.chunk_size = chunk_size
-        self.parse_fmt(chunk_size)
-        break
-      else:
-        self.file.seek(chunk_size, 1)
-
-  def parse_fmt(self, chunk_size):
-    fmt_data = self.file.read(chunk_size)
+  def parse_fmt(self):
+    self.file.seek(self.fmt_chunk_addr + 8)
+    fmt_data = self.file.read(self.fmt_chunk_size)
 
     self.fmt_chunk.audio_format, self.fmt_chunk.num_channels, self.fmt_chunk.sample_rate, \
     self.fmt_chunk.byte_rate, self.fmt_chunk.block_align, self.fmt_chunk.bits_per_sample \
@@ -146,32 +170,17 @@ class WaveFile:
       self.fmt_chunk.extra_params = fmt_data[16:]
 
   def find_smpl_chunk(self):
-    self.file.seek(12)
+    self.smpl_chunk_addr, self.smpl_chunk_size = self._scan_for_chunk(b'smpl')
+    if self.smpl_chunk_addr == -1:
+      return
 
-    smpl_offset = -1
+    self.smpl_chunk = SmplChunk()
+    self.smpl_chunk.chunk_id = b'smpl'
+    self.parse_smpl()
 
-    while True:
-      chunk_header = self.file.read(8)
-
-      if len(chunk_header) < 8:
-        break
-
-      chunk_id, chunk_size = struct.unpack('<4s1I', chunk_header)
-
-      if chunk_id == b'smpl':
-        smpl_offset = self.file.tell() - 8
-        self.smpl_chunk = SmplChunk()
-        self.smpl_chunk.chunk_id = chunk_id
-        self.smpl_chunk.chunk_size = chunk_size
-        self.parse_smpl(chunk_size)
-        break
-      else:
-        self.file.seek(chunk_size, 1)
-
-    return smpl_offset
-
-  def parse_smpl(self, chunk_size):
-    smpl_data = self.file.read(chunk_size)
+  def parse_smpl(self):
+    self.file.seek(self.smpl_chunk_addr + 8)
+    smpl_data = self.file.read(self.smpl_chunk_size)
 
     self.smpl_chunk.manufacturer, self.smpl_chunk.product, \
     self.smpl_chunk.sample_period, \
@@ -191,10 +200,8 @@ class WaveFile:
     self.smpl_chunk.loops = (LoopStruct * len(loops))(*loops)
 
   def fix_loop(self):
-    smpl_offset = self.find_smpl_chunk()
-
-    if smpl_offset == -1:
-      raise ValueError("No smpl chunk in WAV file.")
+    if self.smpl_chunk_addr == -1:
+      raise ValueError('No smpl chunk in RIFF!')
 
     smpl_data = bytearray(struct.pack('<4s1I4s4s7I',
       self.smpl_chunk.chunk_id,
@@ -220,27 +227,17 @@ class WaveFile:
       self.smpl_chunk.loops[i].loop_fraction = 0
       self.smpl_chunk.loops[i].loop_count    = 0
 
-    self.file.seek(smpl_offset)
+    self.file.seek(self.smpl_chunk_addr)
     self.file.write(smpl_data)
 
   def find_data_chunk(self):
-    self.file.seek(12)
+      offset, size = self._scan_for_chunk(b'data')
+      if offset == -1:
+        raise ValueError('No data chunk in RIFF!')
 
-    while True:
-      chunk_header = self.file.read(8)
-
-      if len(chunk_header) < 8:
-        break
-
-      chunk_id, chunk_size = struct.unpack('<4s1I', chunk_header)
-
-      if chunk_id == b'data':
-        self.data_chunk = DataChunk()
-        self.data_chunk.chunk_id = chunk_id
-        self.data_chunk.chunk_size = chunk_size
-        break
-      else:
-        self.file.seek(chunk_size, 1)
+      self.data_chunk = DataChunk()
+      self.data_chunk.chunk_id = b'data'
+      self.data_chunk.chunk_size = size
 
   def save(self):
     self.file.flush()
@@ -253,4 +250,4 @@ class WaveFile:
     self.find_data_chunk()
 
 if __name__ == '__main__':
-  print('This is a utility script meant to be used with the WAV to ZSOUND main script. On its own it has no functionality.')
+  pass
