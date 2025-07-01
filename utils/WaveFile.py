@@ -155,6 +155,7 @@ class WaveFile:
       raise ValueError('No fmt chunk in RIFF!')
 
     self.fmt_chunk = FmtChunk()
+    self.fmt_chunk.chunk_size = self.fmt_chunk_size
     self.parse_fmt()
 
   def parse_fmt(self):
@@ -174,6 +175,7 @@ class WaveFile:
       return
 
     self.smpl_chunk = SmplChunk()
+    self.smpl_chunk.chunk_size = self.smpl_chunk_size
     self.parse_smpl()
 
   def parse_smpl(self):
@@ -234,6 +236,7 @@ class WaveFile:
         raise ValueError('No data chunk in RIFF!')
 
       self.data_chunk = DataChunk()
+      self.data_chunk.chunk_size = self.data_chunk_size
 
   def save(self):
     self.file.flush()
