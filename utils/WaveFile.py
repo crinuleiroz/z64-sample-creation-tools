@@ -103,7 +103,7 @@ class WaveFile:
 
     # 'data' chunk
     self.data_chunk      = None
-    self.data_chunk_adrr = -1
+    self.data_chunk_addr = -1
     self.data_chunk_size = 0
 
     # 'smpl' chunk
@@ -155,7 +155,6 @@ class WaveFile:
       raise ValueError('No fmt chunk in RIFF!')
 
     self.fmt_chunk = FmtChunk()
-    self.fmt_chunk.chunk_id = b'fmt '
     self.parse_fmt()
 
   def parse_fmt(self):
@@ -175,7 +174,6 @@ class WaveFile:
       return
 
     self.smpl_chunk = SmplChunk()
-    self.smpl_chunk.chunk_id = b'smpl'
     self.parse_smpl()
 
   def parse_smpl(self):
@@ -231,13 +229,11 @@ class WaveFile:
     self.file.write(smpl_data)
 
   def find_data_chunk(self):
-      offset, size = self._scan_for_chunk(b'data')
-      if offset == -1:
+      self.data_chunk_addr, self.data_chunk_size = self._scan_for_chunk(b'data')
+      if self.data_chunk_addr == -1:
         raise ValueError('No data chunk in RIFF!')
 
       self.data_chunk = DataChunk()
-      self.data_chunk.chunk_id = b'data'
-      self.data_chunk.chunk_size = size
 
   def save(self):
     self.file.flush()
