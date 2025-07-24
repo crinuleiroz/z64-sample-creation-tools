@@ -435,13 +435,13 @@ class XMLBank:
         for entry in xml_data:
             element = xml.Element(entry.parent_tag)
 
-        if entry.parent_tag == 'abdrumlist':
-            element.set('address', '16')
+            if entry.parent_tag == 'abdrumlist':
+                element.set('address', '16')
 
-        for item in entry.xml_list:
-            self.dict_to_xml(entry.xml_tag, item, element)
+            for item in entry.xml_list:
+                self.dict_to_xml(entry.xml_tag, item, element)
 
-        xml_root.append(element)
+            xml_root.append(element)
 
         with open(f'{filename}_BANK.xml', 'wb') as f:
             xml.indent(xml_tree)
