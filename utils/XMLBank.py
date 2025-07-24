@@ -30,6 +30,34 @@ class XMLDataEntry:
 
 class XMLBank:
     def __init__(self, num_samples, *samples):
+        """
+        Represents an instrument bank in the SEQ64 XML format.
+        
+        The abindexentry contains the following fields:
+            - u32: Address in `audiobank`
+            - u32: Size in `audiobank`
+            -  u8: Audio storage medium
+            -  u8: Cache Load Type
+            -  u8: Sample Bank ID 1
+            -  u8: Sample Bank ID 2
+            -  u8: Number of instruments
+            -  u8: Number of drums
+            - u16: Number of effects
+        
+        Audio Storage Mediums:
+            0 = MEIDUM_RAM,
+            1 = MEDIUM_UNK,
+            2 = MEDIUM_CART,
+            3 = MEDIUM_DISK_DRIVE,
+            5 = MEDIUM_RAM_UNLOADED
+            
+        Cache Load Type:
+            0 = CACHE_LOAD_PERMANENT,
+            1 = CACHE_LOAD_PERSISTENT,
+            2 = CACHE_LOAD_TEMPORARY,
+            3 = CACHE_LOAD_EITHER,
+            4 = CACHE_LOAD_EITHER_NOSYNC
+        """
         self.num_samples = num_samples
         self.drumlist_address = 0x10
         self.instrument_address = (0x20 * num_samples)
@@ -50,11 +78,11 @@ class XMLBank:
                 "name": "ABIndexentry",
                 "field": [
                     {"name": "Audiobank Address", "datatype": "uint8", "ispointer": "0", "isarray": "0", "meaning": "Ptr Bank (in Audiobank)", "value": "155648"}, # Just steal bank 0x28's address
-                    {"name": "Bank Size", "datatype": "uint32", "ispointer": "0", "isarray": "0", "meaning": "None", "value": f"{self.bank_length}"},
-                    {"name": "Sample Medium", "datatype": "uint8", "ispointer": "0", "isarray": "0", "meaning": "None", "defaultval": "2", "value": "2"},
-                    {"name": "Sequnce Player", "datatype": "uint8", "ispointer": "0", "isarray": "0", "meaning": "None", "defaultval": "2", "value": "2"},
-                    {"name": "Audiotable", "datatype": "uint8", "ispointer": "0", "isarray": "0", "meaning": "None", "defaultval": "0", "value": "0"},
-                    {"name": "Audiobank ID", "datatype": "uint8", "ispointer": "0", "isarray": "0", "meaning": "None", "defaultval": "255", "value": "255"},
+                    {"name": "Bank Size", "datatype": "uint32", "ispointer": "0", "isarray": "0", "meaning": "Bank Length", "value": f"{self.bank_length}"},
+                    {"name": "Audio Storage Medium", "datatype": "uint8", "ispointer": "0", "isarray": "0", "meaning": "None", "defaultval": "2", "value": "2"},
+                    {"name": "Cache Load Type", "datatype": "uint8", "ispointer": "0", "isarray": "0", "meaning": "None", "defaultval": "2", "value": "2"},
+                    {"name": "Sample Bank ID 1", "datatype": "uint8", "ispointer": "0", "isarray": "0", "meaning": "Sample Table Number", "defaultval": "0", "value": "0"},
+                    {"name": "Sample Bank ID 2", "datatype": "uint8", "ispointer": "0", "isarray": "0", "meaning": "Sample Table Number", "defaultval": "255", "value": "255"},
                     {"name": "NUM_INST", "datatype": "uint8", "ispointer": "0", "isarray": "0", "meaning": "NUM_INST", "value": "1"},
                     {"name": "NUM_DRUM", "datatype": "uint8", "ispointer": "0", "isarray": "0", "meaning": "NUM_DRUM", "value": f"{num_samples}"},
                     {"name": "NUM_SFX", "datatype": "uint16", "ispointer": "0", "isarray": "0", "meaning": "NUM_SFX", "value": "0"}
@@ -146,8 +174,8 @@ class XMLBank:
                     "name": "ABInstrument",
                     "field": [
                         {"name": "Relocated (Bool)", "datatype": "uint8", "ispointer": "0", "isarray": "0", "meaning": "None", "value": "0"},
-                        {"name": "Key Region Low (Max Range)", "datatype": "uint8", "ispointer": "0", "isarray": "0", "meaning": "None", "value": f"{key_region_low}"},
-                        {"name": "Key Region High (Min Range)", "datatype": "uint8", "ispointer": "0", "isarray": "0", "meaning": "None", "value": f"{key_region_high}"},
+                        {"name": "Key Region Low (Max Range)", "datatype": "uint8", "ispointer": "0", "isarray": "0", "meaning": "Split Point 1", "value": f"{key_region_low}"},
+                        {"name": "Key Region High (Min Range)", "datatype": "uint8", "ispointer": "0", "isarray": "0", "meaning": "Split Point 2", "value": f"{key_region_high}"},
                         {"name": "Decay Index", "datatype": "uint8", "ispointer": "0", "isarray": "0", "meaning": "None", "value": "245"},
                         {"name": "Envelope Pointer","datatype": "uint32","ispointer": "1","ptrto": "ABEnvelope","isarray": "0","meaning": "Ptr Envelope","value": f"{self.envelope_address}","index": "0"},
                         {"name": "Sample Pointer Array", "datatype": "ABSound", "ispointer": "0", "isarray": "1", "arraylenfixed": "3", "meaning": "List of 3 Sounds for Splits",
