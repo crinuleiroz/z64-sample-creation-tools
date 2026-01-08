@@ -188,7 +188,7 @@ class XMLBank:
         for entry in xml_data:
             element = xml.Element(entry.parent_tag)
 
-            if entry.parent_tag == 'abdrumlist':
+            if entry.parent_tag == 'abdrumlist' and self.num_drums > 0:
                 element.set('address', '16')
 
             for item in entry.xml_list:
